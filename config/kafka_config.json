@@ -1,0 +1,5 @@
+{
+  "bootstrap_servers": "localhost:9094",
+  "topic_name": "stocks",
+  "interval_seconds": 5
+}
