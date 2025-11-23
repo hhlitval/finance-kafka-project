@@ -1,0 +1,173 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600;700&display=swap');
+* {
+  padding: 0px;
+  margin: 0px;
+  border: none;
+}
+
+*,
+*::before,
+*::after {
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+a,
+a:link,
+a:visited {
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: none;
+}
+
+aside,
+nav,
+footer,
+header,
+section,
+main {
+  display: block;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+ul,
+ul li {
+  list-style: none;
+}
+
+img {
+  vertical-align: top;
+}
+
+img,
+svg {
+  max-width: 100%;
+  height: auto;
+}
+
+address {
+  font-style: normal;
+}
+
+input,
+textarea,
+button,
+select {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  background-color: transparent;
+}
+
+input::-ms-clear {
+  display: none;
+}
+
+button,
+input[type='submit'] {
+  display: inline-block;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  background-color: transparent;
+  background: none;
+  cursor: pointer;
+}
+
+input:focus,
+input:active,
+button:focus,
+button:active {
+  outline: none;
+}
+
+button::-moz-focus-inner {
+  padding: 0;
+  border: 0;
+}
+
+label {
+  cursor: pointer;
+}
+
+legend {
+  display: block;
+}
+
+html {
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  font-size: clamp(0.875rem, 0.83rem + 0.23vw, 1rem);
+}
+
+body {
+  background: #ffffff;
+  color: #000;
+  font-family: 'Inter Tight', sans-serif;
+  font-weight: 400;
+  line-height: 1.1;
+}
+body a {
+  color: #222;
+  text-decoration: none;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  position: relative;
+  padding-inline: clamp(1rem, 0.345rem + 3.27vw, 2.8rem);
+  padding-block: 2rem;
+  margin-inline: auto;
+}
+
+.title {
+  font-size: clamp(2.625rem, 1.943rem + 3.41vw, 4.5rem);
+  font-weight: 500;
+  margin-bottom: 24px;
+  text-wrap: balance;
+  span {
+    color: #7c7c7c;
+  }
+}
+.subtitle {
+  font-size: clamp(1rem, 0.818rem + 0.91vw, 1.5rem);
+  font-weight: 400;
+}
+
+.charts {
+  display: grid;
+  margin-top: auto;
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.btn {
+  display: inline-block;
+  line-height: normal;
+  padding: 0.8rem 1.6rem;
+  border-radius: 0.6rem;
+  -webkit-transition: all 0.4s;
+  transition: all 0.4s;
+}
+.btn:hover {
+  background-color: #f5f5f5;
+}
+.btn--dark {
+  color: #fff;
+  background-color: #111111;
+}
+.btn--dark:hover {
+  background-color: #333;
+}
