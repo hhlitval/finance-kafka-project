@@ -5,7 +5,7 @@ from utils import *
 from datetime import datetime, timezone
 
 config = load_json(get_path("config", "kafka_config.json"))
-symbols = load_json(get_path("config", "symbols.json"))["symbols"]
+symbols = list(load_json(get_path("config", "stocks.json")).keys())
 
 producer = KafkaProducer(
     bootstrap_servers=config["bootstrap_servers"],
