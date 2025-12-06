@@ -37,7 +37,7 @@ def build_message(symbol, price, timestamp):
     }
 
 def fetch_last_yahoo(symbol, n=300):
-    df = yf.download(symbol, period="5d", interval="1m")
+    df = yf.download(symbol, period="5d", interval="1m", auto_adjust=True)
     df = df.tail(n)
     df = df.reset_index()        
     df["timestamp"] = pd.to_datetime(df["Datetime"])
@@ -62,3 +62,16 @@ def is_market_open():
         return False
     return dtime(9, 30) <= now.time() <= dtime(16, 0)
 
+def get_previous_close(symbol):
+    try:
+        t = yf.Ticker(symbol)
+        hist = t.history(period="2d", interval="1d")
+        if hist.shape[0] >= 2:
+            prev_close = hist["Close"].iloc[-2]
+            return float(prev_close)
+        elif hist.shape[0] == 1:
+            return float(hist["Close"].iloc[-1])
+        else:
+            return None
+    except Exception:
+        return None

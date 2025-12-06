@@ -1,7 +1,7 @@
 import subprocess
 import time
 from pathlib import Path
-from utils import is_market_open, load_json, get_path
+from utils import is_market_open
 
 ROOT = Path(__file__).resolve().parent
 VENV_PYTHON = ROOT / "venv" / "Scripts" / "python.exe"

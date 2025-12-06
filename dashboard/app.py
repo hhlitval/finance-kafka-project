@@ -1,17 +1,19 @@
 import sys
 import os
+from datetime import datetime
 from pathlib import Path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 ROOT = Path(__file__).resolve().parent.parent
 import streamlit as st
 from streamlit_autorefresh import st_autorefresh
 import pandas as pd
-from utils import load_json, get_path, is_market_open, load_historical_data, load_live_data 
+from utils import load_json, get_path, is_market_open, load_historical_data, load_live_data, get_previous_close
 
 config = load_json(get_path("config", "kafka_config.json"))
 ISSUERS = load_json(get_path("config", "stocks.json"))
 TICKERS = list(ISSUERS.keys())
 STOCKS_DATA = ROOT / "data" / "stock_prices.csv"
+METRICS_UPDATE_INTERVAL = 5
 
 st.set_page_config(page_title="Aktien Echtzeit Dashboard", layout="wide")
 st.markdown("""
@@ -31,14 +33,14 @@ header {
     display: none !important;
 }
 .stMainBlockContainer {
-    padding: 2rem 1rem 2rem;
+    padding: 4rem 1rem 2rem;
 }
 [data-testid="stAlertContainer"] {
     display: inline-flex;    
     background-color: #DDFFF7; 
     padding: 0.5rem 1rem
 }
-[data-testid="stAlertContentInfo"] p {
+[data-testid="stAlertContentInfo"] p, [data-testid="stAlertContentWarning"] p {
     color: black;
 }
 .stApp {
@@ -60,12 +62,14 @@ unsafe_allow_html=True)
 st.title("Deine Aktien im Vergleich")
 st.text("Frische Börsendaten direkt verarbeitet und übersichtlich dargestellt.")
 
+prev_close = {sym: get_previous_close(sym) for sym in TICKERS}
+
 if is_market_open():
     st.info("Live-Modus aktiv")
     df = load_live_data(STOCKS_DATA) 
-    st_autorefresh(interval=5000, key="refresh")
+    st_autorefresh(interval=METRICS_UPDATE_INTERVAL*1000, key="refresh")
 else:
-    st.warning("Börse geschlossen. Zeige letzte Kurse von Yahoo.")
+    st.warning("Börse geschlossen. Zeige letzte Kurse von Yahoo Finance.")
     df = load_historical_data(TICKERS)
 
 latest = df.sort_values("timestamp").groupby("symbol").tail(500)
@@ -82,37 +86,37 @@ with row:
             continue
 
         current = d["price"].iloc[-1]
-        prev = d["price"].iloc[-2]
-        delta = round(current - prev, 3)
-        pct = round((delta / prev) * 100, 2)
+        delta = round(current - prev_close[sym], 3)
+        pct = round((delta / prev_close[sym]) * 100, 2)
 
         col.metric(
             label=f"{ISSUERS[sym]} ({sym})",
             value=f"${current:.2f}",
             delta=f"{delta:+.2f} ({pct:+.2f}%)",
-            chart_data=d["price"],
+            chart_data=round(d["price"], 2),
             chart_type="line",
             border=True
         )
-st.markdown("""
+st.markdown(f"""
 <style>
-    .footer {
-        h4, a {
-        color: #c2c2c2;
+    .footer {{
+        h4, a {{
+        color: #888888;
         font-size: 1rem;
-        font-weight: 350;}
+        font-weight: 350;
+        }}
         a,
         a:link,
-        a:visited {            
+        a:visited {{           
         text-decoration: underline;
-    }
+    }}
         
-}
+}}
 </style>
 <footer class="footer">
     <h4>
         Created by
-        <a href="https://www.alexlitvin.com" target="_blank">Alex Litvin</a>
+        <a href="https://www.alexlitvin.com" target="_blank">Alex Litvin</a> © {datetime.now().year}
     </h4>
 </footer>
 """, 
