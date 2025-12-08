@@ -15,7 +15,7 @@ producer = KafkaProducer(
 topic = config["topic_name"]
 interval = config["interval_seconds"]
 
-print(f"Starte Streaming für die Aktien...")
+print(f"Initializing real-time stock streaming")
 
 while True:
     timestamp = datetime.now(timezone.utc).isoformat()
@@ -27,7 +27,7 @@ while True:
           message = build_message(symbol, price, timestamp)          
           producer.send(topic, value=message)
           producer.flush()
-          print(f"[Producer {symbol}] → gesendet: {message}")
+          print(f"[Producer {symbol}] → message sent: {message}")
       else:
-          print(f"[Producer {symbol}] Keine Daten für {symbol} erhalten.")
+          print(f"[Producer {symbol}] Warning: No data fetched for {symbol}.")
     time.sleep(interval)

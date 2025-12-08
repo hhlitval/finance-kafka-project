@@ -5,92 +5,77 @@ from utils import is_market_open
 
 ROOT = Path(__file__).resolve().parent
 VENV_PYTHON = ROOT / "venv" / "Scripts" / "python.exe"
-VENV_STREAMLIT = ROOT / "venv" / "Scripts" / "streamlit.exe"
+producer_proc = None
+consumer_proc = None
+docker_started = False
 
-if is_market_open():
-  print("Starte Docker Compose...")
-  subprocess.Popen(["docker-compose", "up", "-d"]).wait()
-  time.sleep(5)
+def start_kafka_services():
+    global producer_proc, consumer_proc, docker_started
 
-  print("Starte Producer...")
-  subprocess.Popen([str(VENV_PYTHON), "-m", "producer.producer_stocks"])
+    if not docker_started:
+        print("Starting Docker Compose")
+        subprocess.Popen(["docker-compose", "up", "-d"]).wait()
+        docker_started = True
 
-  print("Starte Consumer...")
-  subprocess.Popen([str(VENV_PYTHON), "-m", "consumer.consumer"])  
-else:
-  print("Lade historische Daten...")
+    if producer_proc is None or producer_proc.poll() is not None:
+        print("Starting Producer")
+        producer_proc = subprocess.Popen([str(VENV_PYTHON), "-m", "producer.producer_stocks"])
 
-print("Starte Streamlit...")
-subprocess.Popen(["streamlit", "run", "dashboard/app.py"])
+    if consumer_proc is None or consumer_proc.poll() is not None:
+        print("Starting Consumer")
+        consumer_proc = subprocess.Popen([str(VENV_PYTHON), "-m", "consumer.consumer"])  
 
-# import subprocess
-# import time
-# from pathlib import Path
-# from utils import is_market_open
+def stop_kafka_services():
+    global producer_proc, consumer_proc, docker_started
 
-# ROOT = Path(__file__).resolve().parent
-# VENV_PYTHON = ROOT / "venv" / "Scripts" / "python.exe"
+    if producer_proc:
+        print("Stopping Producer")
+        producer_proc.terminate()
+        producer_proc = None
 
-# producer_proc = None
-# consumer_proc = None
-# docker_proc = None
+    if consumer_proc:
+        print("Stopping Consumer")
+        consumer_proc.terminate()
+        consumer_proc = None
 
-# def start_kafka_services():
-#     global docker_proc, producer_proc, consumer_proc
-
-#     print("Starte Docker Compose…")
-#     docker_proc = subprocess.Popen(["docker-compose", "up", "-d"])
-#     time.sleep(5)
-
-#     print("Starte Producer…")
-#     producer_proc = subprocess.Popen([str(VENV_PYTHON), "-m", "producer.producer_stocks"])
-
-#     print("Starte Consumer…")
-#     consumer_proc = subprocess.Popen([str(VENV_PYTHON), "-m", "consumers.consumer"])
+    # if docker_started:
+    #     print("Stopping Docker Compose")
+    #     subprocess.Popen(["docker-compose", "down"]).wait()
+    #     docker_started = False
 
 
-# def stop_kafka_services():
-#     global producer_proc, consumer_proc
+def main():
+    market_open_prev = is_market_open()
 
-#     print("Stoppe Producer/Consumer…")
+    if market_open_prev:
+        print("Market open -> starting real-time pipeline")
+        start_kafka_services()
+    else:
+        print("Market closed -> using historical data only")
 
-#     if producer_proc and producer_proc.poll() is None:
-#         producer_proc.terminate()
+    print("Starting Streamlit")
+    streamlit_proc = subprocess.Popen(["streamlit", "run", "dashboard/app.py"])
 
-#     if consumer_proc and consumer_proc.poll() is None:
-#         consumer_proc.terminate()
+    try:
+        while True:
+            time.sleep(60)
 
-#     print("Stoppe Docker Compose…")
-#     subprocess.Popen(["docker-compose", "down"]).wait()
+            market_open_now = is_market_open()
 
+            if market_open_now and not market_open_prev:
+                print("\n Market opened -> starting Kafka pipeline")
+                start_kafka_services()
 
-# def main():
-#     if is_market_open():
-#         start_kafka_services()
-#     else:
-#         print("Börse geschlossen → lade historische Daten")
+            if not market_open_now and market_open_prev:
+                print("\n Market closed -> stopping Kafka pipeline")
+                stop_kafka_services()
 
-#     # Dashboard starten
-#     print("Starte Streamlit…")
-#     streamlit_proc = subprocess.Popen(["streamlit", "run", "dashboard/app.py"])
+            market_open_prev = market_open_now
 
-#     try:
-#         while True:
-#             time.sleep(60)
+    except KeyboardInterrupt:
+        print("\n Shutting down everything...")
+        stop_kafka_services()
+        streamlit_proc.terminate()
 
-#             # Check if market status changed
-#             if not is_market_open():
-#                 stop_kafka_services()
-#             else:
-#                 # Market reopened?
-#                 if producer_proc is None or producer_proc.poll() is not None:
-#                     start_kafka_services()
-
-#     except KeyboardInterrupt:
-#         print("Beende alles…")
-#         stop_kafka_services()
-#         streamlit_proc.terminate()
-
-
-# if __name__ == "__main__":
-#     main()
+if __name__ == "__main__":
+    main()

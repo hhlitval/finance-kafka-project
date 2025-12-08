@@ -2,7 +2,7 @@
 
 A real-time stock dashboard built with Apache Kafka, Streamlit, and Yahoo Finance. The dashboard displays live stock prices, metrics with deltas, and falls back to historical data when the stock market is closed.
 
-![Portfolio Screenshot](./assets/preview.webp)
+![Real-time project demo](./assets/real_time_demo.webm)
 
 ## Table of Contents
 
@@ -18,7 +18,6 @@ A real-time stock dashboard built with Apache Kafka, Streamlit, and Yahoo Financ
 - Python 3.10+
 - Apache Kafka
 - Streamlit
-- Altair
 - Yahoo Finance API (yfinance)
 - Pandas / NumPy
 
@@ -30,10 +29,10 @@ A real-time stock dashboard built with Apache Kafka, Streamlit, and Yahoo Financ
 
 ### Real-Time Data (When Market Is Open)
 
-- A Kafka producer fetches a stock price every 5 seconds..
-- A Kafka consumer streams the latest values into the dashboard.
-- Streamlit updates metrics + charts automatically.
-- Delta values are calculated against previous close.
+- A Kafka producer fetches stock prices from Yahoo Finance every 5 seconds.
+- A Kafka consumer writes the live stream into a local CSV time-series database.
+- A Streamlit dashboard visualizes metrics + charts and updates automatically.
+- Delta values are calculated against the previous close price.
 
 ### Automatic Market-Closed Fallback
 

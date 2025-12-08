@@ -22,7 +22,7 @@ consumer = KafkaConsumer(
     enable_auto_commit=True,
     value_deserializer=lambda v: json.loads(v.decode("utf-8"))
 )
-print("[Consumer] Warte auf Nachrichten...")
+print("[Consumer] Listening for incoming Kafka messages")
 
 try:
     for message in consumer:
@@ -34,7 +34,7 @@ try:
         csv_file.flush()
         print(f"[Consumer] ← {timestamp} | {symbol}: {price}")
 except KeyboardInterrupt:
-    print("\n[Consumer] Manuelles Stoppen erkannt. Beende sauber...")
+    print("\n[Consumer] Manual termination detected.")
 finally:
     csv_file.close()
     consumer.close()
