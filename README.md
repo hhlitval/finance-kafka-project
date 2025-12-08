@@ -2,7 +2,7 @@
 
 A real-time stock dashboard built with Apache Kafka, Streamlit, and Yahoo Finance. The dashboard displays live stock prices, metrics with deltas, and falls back to historical data when the stock market is closed.
 
-![Real-time project demo](./assets/real_time_demo.mp4)
+![Real-time project demo](./assets/real_time-preview.gif)
 
 ## Table of Contents
 
