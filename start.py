@@ -48,10 +48,10 @@ def main():
     market_open_prev = is_market_open()
 
     if market_open_prev:
-        print("Market open -> starting real-time pipeline")
+        print("Market open -> Starting real-time pipeline")
         start_kafka_services()
     else:
-        print("Market closed -> using historical data only")
+        print("Market closed -> Using historical data only")
 
     print("Starting Streamlit")
     streamlit_proc = subprocess.Popen(["streamlit", "run", "dashboard/app.py"])
